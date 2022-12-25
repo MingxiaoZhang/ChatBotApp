@@ -13,7 +13,6 @@ function App() {
   const [prompt, setPrompt] = useState("")
   const [reply, setReply] = useState("")
   const getText = async (text) => {
-    console.log(process.env)
     const configuration = new Configuration({
       organization: "org-9saZtTNk7pok4fc59RgFqunZ",
       apiKey: process.env.REACT_APP_OPENAI_API_KEY,
