@@ -15,7 +15,7 @@ function App() {
   const getText = async (text) => {
     const configuration = new Configuration({
       organization: "org-9saZtTNk7pok4fc59RgFqunZ",
-      apiKey: process.env.OPEN_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY,
     });
     const openai = new OpenAIApi(configuration);
     const response = await openai.createCompletion({
