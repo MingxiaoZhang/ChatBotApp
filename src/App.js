@@ -10,6 +10,7 @@ function App() {
   const speechConfig = speechsdk.SpeechConfig.fromSubscription("daf7e8b3bf2e4d379e0848591dda5ef6", "eastus");
   speechConfig.speechRecognitionLanguage = 'en-US';
 
+  const [disabled, setDisabled] = useState(false)
   const [prompt, setPrompt] = useState("")
   const [reply, setReply] = useState("")
   const getText = async (text) => {
@@ -38,6 +39,7 @@ function App() {
         result => {
           if (result) {
             synthesizer.close();
+            setDisabled(false);
             return result.audioData;
           }
         },
@@ -48,6 +50,11 @@ function App() {
   }
 
   const speechToText = async () => {
+    if (disabled) {
+      return
+    } else {
+      setDisabled(true)
+    }
     const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
     const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
 
