@@ -3,6 +3,7 @@ import './App.css';
 import { Configuration, OpenAIApi } from "openai";
 import React, {useState} from "react";
 import { ResultReason } from 'microsoft-cognitiveservices-speech-sdk';
+import {wait} from "@testing-library/user-event/dist/utils";
 
 const speechsdk = require('microsoft-cognitiveservices-speech-sdk')
 
@@ -39,7 +40,8 @@ function App() {
         result => {
           if (result) {
             synthesizer.close();
-            setDisabled(false);
+            console.log(result.audioDuration / 10000)
+            wait(result.audioDuration / 10000).then(() => setDisabled(false))
             return result.audioData;
           }
         },
@@ -50,27 +52,26 @@ function App() {
   }
 
   const speechToText = async () => {
-    if (disabled) {
-      return
-    } else {
+    console.log(disabled)
+    if (!disabled) {
       setDisabled(true)
+      const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
+      const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
+
+      setPrompt("Speak into your microphone")
+
+      recognizer.recognizeOnceAsync(async result => {
+        let displayText;
+        if (result.reason === ResultReason.RecognizedSpeech) {
+          displayText = `${result.text}`
+        } else {
+          displayText = 'ERROR: Speech was cancelled or could not be recognized. Ensure your microphone is working properly.';
+        }
+        setPrompt(displayText)
+        let text = await getText(displayText)
+        await textToSpeech(text)
+      });
     }
-    const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
-    const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
-
-    setPrompt("Speak into your microphone")
-
-    recognizer.recognizeOnceAsync(async result => {
-      let displayText;
-      if (result.reason === ResultReason.RecognizedSpeech) {
-        displayText = `${result.text}`
-      } else {
-        displayText = 'ERROR: Speech was cancelled or could not be recognized. Ensure your microphone is working properly.';
-      }
-      setPrompt(displayText)
-      let text = await getText(displayText)
-      await textToSpeech(text)
-    });
   }
 
   return (
