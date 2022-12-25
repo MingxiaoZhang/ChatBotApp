@@ -13,9 +13,10 @@ function App() {
   const [prompt, setPrompt] = useState("")
   const [reply, setReply] = useState("")
   const getText = async (text) => {
+    console.log(process.env)
     const configuration = new Configuration({
       organization: "org-9saZtTNk7pok4fc59RgFqunZ",
-      apiKey: "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",
+      apiKey: process.env.REACT_APP_OPENAI_API_KEY,
     });
     const openai = new OpenAIApi(configuration);
     const response = await openai.createCompletion({
