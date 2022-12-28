@@ -8,8 +8,9 @@ import {wait} from "@testing-library/user-event/dist/utils";
 const speechsdk = require('microsoft-cognitiveservices-speech-sdk')
 
 function App() {
+    const [language, setLanguage] = useState("en-US")
   const speechConfig = speechsdk.SpeechConfig.fromSubscription("daf7e8b3bf2e4d379e0848591dda5ef6", "eastus");
-  speechConfig.speechRecognitionLanguage = 'en-US';
+  speechConfig.speechRecognitionLanguage = language;
 
   const [disabled, setDisabled] = useState(false)
   const [prompt, setPrompt] = useState("")
@@ -33,7 +34,11 @@ function App() {
 
   const textToSpeech = async (text) => {
     const audioConfig = speechsdk.AudioConfig.fromDefaultSpeakerOutput();
-    speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural";
+    if (language === "en-US") {
+        speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural";
+    } else {
+        speechConfig.speechSynthesisVoiceName = "zh-CN-XiaochenNeural";
+    }
     const synthesizer = new speechsdk.SpeechSynthesizer(speechConfig, audioConfig);
     synthesizer.speakTextAsync(
         text,
@@ -52,13 +57,17 @@ function App() {
   }
 
   const speechToText = async () => {
-    console.log(disabled)
+    console.log(language)
     if (!disabled) {
       setDisabled(true)
       const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
       const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
 
-      setPrompt("Speak into your microphone")
+      if (language === "en-US") {
+          setPrompt("Speak into your microphone")
+      } else {
+          setPrompt("请对麦克风说话")
+      }
 
       recognizer.recognizeOnceAsync(async result => {
         let displayText;
@@ -74,9 +83,21 @@ function App() {
     }
   }
 
+  const toggleLang = () => {
+      if (document.getElementById('lang').selectedIndex === 0) {
+          setLanguage("en-US")
+      } else {
+          setLanguage("zh-CN")
+      }
+  }
+
   return (
     <div className="App">
       <header className="App-header">
+          <select id="lang" onChange={toggleLang}>
+              <option value="0">English</option>
+              <option value="1">中文</option>
+          </select>
         <span onClick={speechToText}>
           <img src={logo} className="App-logo" alt="logo" />
         </span>
